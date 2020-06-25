@@ -19,6 +19,12 @@ exercises: [{
     },
     weight: {
     type: Number
+    },
+    duration: {
+        type: Number
+    },
+    distance: {
+        type: Number
     }
 }]
 })

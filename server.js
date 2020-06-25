@@ -19,14 +19,6 @@ app.use(express.static("public"));
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/populate", { useNewUrlParser: true });
 
-db.Exercises.create({ name: "Bench Press" })
-  .then(dbExercises => {
-    console.log(dbExercises);
-  })
-  .catch(({ message }) => {
-    console.log(message);
-  });
-
 app.get("/exercise", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/exercise.html"));  
 });
@@ -34,17 +26,6 @@ app.get("/exercise", (req, res) => {
 app.get("/stats", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/stats.html"));
 });
-
-app.post("/api/workouts", (req, res) => {
-  db.Exercises.create(body)
-  .then(({ _id }) => db.Workout.findOneAndUpdate({}, { $push: { exercises: _id } }, { new: true }))
-  .then(dbWorkout => {
-    res.json(dbWorkout);
-  })
-  .catch(err => {
-    res.json(err);
-  });
-})
 
 app.get("/api/workouts", (req, res) => {
   db.Workout.find({})
@@ -56,8 +37,30 @@ app.get("/api/workouts", (req, res) => {
     });
 });
 
+app.post("/api/workouts", ({body}, res) => {
+  db.Exercises.create(body)
+  .then(dbExercises => {
+    res.json(dbExercises);
+  })
+  .catch(err => {
+    res.json(err);
+  });
+});
+
+app.put("/api/workouts", ({body}, res) => {
+  db.Exercises.create(body)
+  .then(({ _id }) => db.Workout.findOneAndUpdate({}, { $push: { exercises: _id } }, { new: true }))
+  .then(dbWorkout => {
+    res.json(dbWorkout);
+  })
+  .catch(err => {
+    res.json(err);
+  });
+});
+
 app.get("/api/workouts/range", (req, res) => {
   db.Workout.find({})
+    .populate("exercises")
     .then(dbWorkout => {
       res.json(dbWorkout);
     })
