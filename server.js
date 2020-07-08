@@ -54,6 +54,7 @@ app.put("/api/workouts/:id", (req, res) => {
   db.Workout.findById(workoutId).then(workout => {
       
       workout.exercises.push(exercise);
+      workout.totalDuration += exercise.duration;
       workout.save().then(result => {
           res.json(result);
       })
