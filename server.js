@@ -37,30 +37,32 @@ app.get("/api/workouts", (req, res) => {
     });
 });
 
-app.post("/api/workouts", ({body}, res) => {
-  db.Exercises.create(body)
-  .then(dbExercises => {
-    res.json(dbExercises);
-  })
-  .catch(err => {
-    res.json(err);
-  });
-});
+app.post("/api/workouts", (req, res) => {
+  const workout = req.body;
 
-app.put("/api/workouts", ({body}, res) => {
-  db.Exercises.create(body)
-  .then(({ _id }) => db.Workout.findOneAndUpdate({}, { $push: { exercises: _id } }, { new: true }))
-  .then(dbWorkout => {
-    res.json(dbWorkout);
+  db.Workout.create(workout).then(result => {
+      console.log(result);
+
+      res.json(result);
   })
-  .catch(err => {
-    res.json(err);
-  });
-});
+})
+
+app.put("/api/workouts/:id", (req, res) => {
+  const exercise = req.body;
+  const workoutId = req.params.id
+
+  db.Workout.findById(workoutId).then(workout => {
+      
+      workout.exercises.push(exercise);
+      workout.save().then(result => {
+          res.json(result);
+      })
+      
+  })
+})
 
 app.get("/api/workouts/range", (req, res) => {
   db.Workout.find({})
-    .populate("exercises")
     .then(dbWorkout => {
       res.json(dbWorkout);
     })
@@ -68,6 +70,7 @@ app.get("/api/workouts/range", (req, res) => {
       res.json(err);
     });
 });
+
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}!`);
